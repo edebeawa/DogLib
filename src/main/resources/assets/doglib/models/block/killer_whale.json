@@ -1,0 +1,19 @@
+{
+  "parent": "forge:item/default",
+  "loader": "forge:composite",
+  "children": {
+    "part1": {
+      "loader": "forge:obj",
+      "model": "doglib:models/block/obj/killer_whale.obj",
+      "emissive_ambient": true,
+      "flip-v": true,
+      "textures": {
+        "#m_4361aefc-f667-c16c-1a25-2ef593772427": "doglib:block/killer_whale"
+      }
+    }
+  },
+  "textures": {
+    "particle": "doglib:block/killer_whale"
+  },
+  "render_type": "cutout"
+}

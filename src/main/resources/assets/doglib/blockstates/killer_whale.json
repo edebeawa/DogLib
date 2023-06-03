@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "doglib:block/killer_whale",
+      "y": 270
+    },
+    "facing=north": {
+      "model": "doglib:block/killer_whale",
+      "y": 180
+    },
+    "facing=south": {
+      "model": "doglib:block/killer_whale"
+    },
+    "facing=west": {
+      "model": "doglib:block/killer_whale",
+      "y": 90
+    }
+  }
+}

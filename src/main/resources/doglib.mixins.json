@@ -1,0 +1,23 @@
+{
+  "required": true,
+  "package": "edebe.doglib.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "${mod_id}.refmap.json",
+  "mixins": [
+    "AnvilMenuModify",
+    "EnchantmentMixin",
+    "EntityMixin"
+  ],
+  "client": [
+    "client.AnvilScreenMixin",
+    "client.ItemInHandRendererMixin",
+    "client.ItemRendererMixin",
+    "client.LiquidBlockRendererMixin",
+    "client.ModelBlockRendererMixin"
+  ],
+  "server": [],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "minVersion": "0.8"
+}

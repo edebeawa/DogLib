@@ -1,0 +1,20 @@
+modLoader="javafml"
+loaderVersion="[36,)"
+license="All rights reserved"
+[[mods]]
+modId="doglib"
+version="${file.jarVersion}"
+displayName="Dog Lib"
+authors="edebe"
+[[dependencies.doglib]]
+    modId="forge"
+    mandatory=true
+    versionRange="[,43.1.57)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.doglib]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.19.2,1.20)"
+    ordering="NONE"
+    side="BOTH"
