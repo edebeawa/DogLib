@@ -4,12 +4,14 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.SheetedDecalTextureGenerator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
+import edebe.doglib.DogLib;
 import edebe.doglib.api.client.renderer.ModRenderType;
 import edebe.doglib.api.client.renderer.item.ICustomItemFoil;
 import edebe.doglib.api.client.renderer.item.ICustomItemRender;
 import edebe.doglib.api.client.renderer.item.IItemRenderColor;
 import edebe.doglib.api.event.client.ItemFoilModifyEvent;
 import edebe.doglib.api.event.client.ItemRenderEvent;
+import edebe.doglib.api.helper.ReflectionHelper;
 import edebe.doglib.api.helper.RenderHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemColors;
@@ -53,8 +55,8 @@ public abstract class ItemRendererMixin {
      * @author
      */
     @Overwrite//render
-    public void m_115143_(ItemStack stack, ItemTransforms.TransformType transformType, boolean isLeftHand, PoseStack matrixStack, MultiBufferSource buffers, int light, int overlay, BakedModel bakedModel) {
-        if (!stack.isEmpty()) if (!MinecraftForge.EVENT_BUS.post(new ItemRenderEvent((ItemRenderer) (Object)this, this.f_174223_, stack, transformType, isLeftHand, matrixStack, buffers, this.f_115097_, light, overlay, f_115096_, this.f_115095_, bakedModel))) {
+    public void m_115143_(ItemStack stack, ItemTransforms.TransformType transformType, boolean isLeftHand, PoseStack matrixStack, MultiBufferSource bufferSource, int light, int overlay, BakedModel bakedModel) {
+        if (!stack.isEmpty()) if (!MinecraftForge.EVENT_BUS.post(new ItemRenderEvent((ItemRenderer) (Object)this, this.f_174223_, stack, transformType, isLeftHand, matrixStack, bufferSource, this.f_115097_, light, overlay, f_115096_, this.f_115095_, bakedModel))) {
             matrixStack.pushPose();
             boolean flag = transformType == ItemTransforms.TransformType.GUI || transformType == ItemTransforms.TransformType.GROUND || transformType == ItemTransforms.TransformType.FIXED;
             if (flag)
@@ -65,8 +67,8 @@ public abstract class ItemRendererMixin {
 
             bakedModel = ForgeHooksClient.handleCameraTransforms(matrixStack, bakedModel, transformType, isLeftHand);
             matrixStack.translate(-0.5D, -0.5D, -0.5D);
-            if (stack.getItem() instanceof ICustomItemRender.Item render && render.renderItem(stack)) {
-                render.getItemRenderer().renderItem((ItemRenderer) (Object)this, this.f_174223_, stack, transformType, isLeftHand, matrixStack, buffers, this.f_115097_, light, overlay, f_115096_, this.f_115095_, bakedModel);
+            if (stack.getItem() instanceof ICustomItemRender render && ReflectionHelper.hasMethod(render.getItemStackRenderer().getClass(), "renderItem", ItemRenderer.class, BlockEntityWithoutLevelRenderer.class, ItemStack.class, ItemTransforms.TransformType.class, boolean.class, PoseStack.class, MultiBufferSource.class, ItemColors.class, int.class, int.class, TextureManager.class, ItemModelShaper.class, BakedModel.class)) {
+                render.getItemStackRenderer().renderItem((ItemRenderer) (Object)this, this.f_174223_, stack, transformType, isLeftHand, matrixStack, bufferSource, this.f_115097_, light, overlay, f_115096_, this.f_115095_, bakedModel);
             } else if (!bakedModel.isCustomRenderer() && (!stack.is(Items.TRIDENT) || flag)) {
                 boolean flag1;
                 if (transformType != ItemTransforms.TransformType.GUI && !transformType.firstPerson() && stack.getItem() instanceof BlockItem) {
@@ -85,46 +87,46 @@ public abstract class ItemRendererMixin {
                                 matrix.pose().multiply(0.75F);
 
                             if (flag1)
-                                vertexConsumer = getCompassFoilBufferDirect(buffers, rendertype, matrix, stack);
+                                vertexConsumer = getCompassFoilBufferDirect(bufferSource, rendertype, matrix, stack);
                             else
-                                vertexConsumer = getCompassFoilBuffer(buffers, rendertype, matrix, stack);
+                                vertexConsumer = getCompassFoilBuffer(bufferSource, rendertype, matrix, stack);
 
                             matrixStack.popPose();
                         } else if (flag1)
-                            vertexConsumer = getFoilBufferDirect(buffers, rendertype, true, stack);
+                            vertexConsumer = getFoilBufferDirect(bufferSource, rendertype, true, stack);
                         else
-                            vertexConsumer = getFoilBuffer(buffers, rendertype, true, stack);
+                            vertexConsumer = getFoilBuffer(bufferSource, rendertype, true, stack);
 
                         if (stack.getItem() instanceof IItemRenderColor itemRenderColor)
                             RenderHelper.renderModelLists(model, stack, itemRenderColor, light, overlay, matrixStack, vertexConsumer);
                         else this.renderModelLists(model, stack, light, overlay, matrixStack, vertexConsumer);
                     }
-            } else IClientItemExtensions.of(stack).getCustomRenderer().renderByItem(stack, transformType, matrixStack, buffers, light, overlay);
+            } else IClientItemExtensions.of(stack).getCustomRenderer().renderByItem(stack, transformType, matrixStack, bufferSource, light, overlay);
 
             matrixStack.popPose();
         }
     }
 
-    private static VertexConsumer getCompassFoilBuffer(MultiBufferSource buffers, RenderType type, PoseStack.Pose matrix, ItemStack stack) {
-        return VertexMultiConsumer.create(new SheetedDecalTextureGenerator(buffers.getBuffer(ModRenderType.glint(getFoilResourceLocation(stack))), matrix.pose(), matrix.normal()), buffers.getBuffer(type));
+    private static VertexConsumer getCompassFoilBuffer(MultiBufferSource bufferSource, RenderType type, PoseStack.Pose matrix, ItemStack stack) {
+        return VertexMultiConsumer.create(new SheetedDecalTextureGenerator(bufferSource.getBuffer(ModRenderType.glint(getFoilResourceLocation(stack))), matrix.pose(), matrix.normal()), bufferSource.getBuffer(type));
     }
 
-    private static VertexConsumer getCompassFoilBufferDirect(MultiBufferSource buffers, RenderType type, PoseStack.Pose matrix, ItemStack stack) {
-        return VertexMultiConsumer.create(new SheetedDecalTextureGenerator(buffers.getBuffer(ModRenderType.glintDirect(getFoilResourceLocation(stack))), matrix.pose(), matrix.normal()), buffers.getBuffer(type));
+    private static VertexConsumer getCompassFoilBufferDirect(MultiBufferSource bufferSource, RenderType type, PoseStack.Pose matrix, ItemStack stack) {
+        return VertexMultiConsumer.create(new SheetedDecalTextureGenerator(bufferSource.getBuffer(ModRenderType.glintDirect(getFoilResourceLocation(stack))), matrix.pose(), matrix.normal()), bufferSource.getBuffer(type));
     }
 
-    private static VertexConsumer getFoilBuffer(MultiBufferSource buffers, RenderType type, boolean noEntity, ItemStack stack) {
-        if (stack.hasFoil()) return Minecraft.useShaderTransparency() && type == Sheets.translucentItemSheet() ? VertexMultiConsumer.create(buffers.getBuffer(ModRenderType.glintTranslucent(getFoilResourceLocation(stack))), buffers.getBuffer(type)) : VertexMultiConsumer.create(buffers.getBuffer(noEntity ? ModRenderType.glint(getFoilResourceLocation(stack)) : ModRenderType.entityGlint(getFoilResourceLocation(stack))), buffers.getBuffer(type));
-        else return buffers.getBuffer(type);
+    private static VertexConsumer getFoilBuffer(MultiBufferSource bufferSource, RenderType type, boolean noEntity, ItemStack stack) {
+        return stack.hasFoil() ? (Minecraft.useShaderTransparency() && type == Sheets.translucentItemSheet() ? VertexMultiConsumer.create(bufferSource.getBuffer(ModRenderType.glintTranslucent(getFoilResourceLocation(stack))), bufferSource.getBuffer(type)) : VertexMultiConsumer.create(bufferSource.getBuffer(noEntity ? ModRenderType.glint(getFoilResourceLocation(stack)) : ModRenderType.entityGlint(getFoilResourceLocation(stack))), bufferSource.getBuffer(type))) : bufferSource.getBuffer(type);
     }
 
-    private static VertexConsumer getFoilBufferDirect(MultiBufferSource buffers, RenderType type, boolean noEntity, ItemStack stack) {
-        return stack.hasFoil() ? VertexMultiConsumer.create(buffers.getBuffer(noEntity ? ModRenderType.glintDirect(getFoilResourceLocation(stack)) : ModRenderType.entityGlintDirect(getFoilResourceLocation(stack))), buffers.getBuffer(type)) : buffers.getBuffer(type);
+    private static VertexConsumer getFoilBufferDirect(MultiBufferSource bufferSource, RenderType type, boolean noEntity, ItemStack stack) {
+        return stack.hasFoil() ? VertexMultiConsumer.create(bufferSource.getBuffer(noEntity ? ModRenderType.glintDirect(getFoilResourceLocation(stack)) : ModRenderType.entityGlintDirect(getFoilResourceLocation(stack))), bufferSource.getBuffer(type)) : bufferSource.getBuffer(type);
     }
 
     private static ResourceLocation getFoilResourceLocation(ItemStack stack) {
         ItemFoilModifyEvent event = new ItemFoilModifyEvent(stack, stack.getItem() instanceof ICustomItemFoil customFoil ? customFoil.getFoilResourceLocation(stack) : ItemRenderer.ENCHANT_GLINT_LOCATION);
         MinecraftForge.EVENT_BUS.post(event);
+        DogLib.LOGGER.error(event.getResourceLocation());
         return event.getResourceLocation();
     }
 }

@@ -6,14 +6,15 @@
   "mixins": [
     "AnvilMenuModify",
     "EnchantmentMixin",
-    "EntityMixin"
+    "EntityMixin",
+    "client.Matrix4fAccessor"
   ],
   "client": [
+    "client.AgeableListModelAccessor",
     "client.AnvilScreenMixin",
     "client.ItemInHandRendererMixin",
     "client.ItemRendererMixin",
-    "client.LiquidBlockRendererMixin",
-    "client.ModelBlockRendererMixin"
+    "client.ModelPartAccessor"
   ],
   "server": [],
   "injectors": {

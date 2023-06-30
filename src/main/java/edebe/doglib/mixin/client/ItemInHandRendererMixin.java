@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
 import edebe.doglib.api.client.renderer.item.ICustomItemRender;
 import edebe.doglib.api.event.client.ItemInHandRenderEvent;
+import edebe.doglib.api.helper.ReflectionHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
@@ -110,8 +111,8 @@ public abstract class ItemInHandRendererMixin {
                     }
 
                     this.renderItem(player, stack, isRightArm(arm) ? ItemTransforms.TransformType.FIRST_PERSON_RIGHT_HAND : ItemTransforms.TransformType.FIRST_PERSON_LEFT_HAND, !isRightArm(arm), matrixStack, buffers, light);
-                } else if (stack.getItem() instanceof ICustomItemRender.Hand render && render.renderHand(stack)) {
-                    render.getHandRenderer().renderHand(this.f_109307_, this.f_109299_, player, this.f_109306_, partialTick, pitch, hand, arm, swingProcess, stack, equipProcess, matrixStack, buffers, light);
+                } else if (stack.getItem() instanceof ICustomItemRender render && ReflectionHelper.hasMethod(render.getItemStackRenderer().getClass(), "renderHand", ItemRenderer.class, Minecraft.class, AbstractClientPlayer.class, EntityRenderDispatcher.class, float.class, float.class, InteractionHand.class, HumanoidArm.class, float.class, ItemStack.class, float.class, PoseStack.class, MultiBufferSource.class, int.class)) {
+                    render.getItemStackRenderer().renderHand(this.f_109307_, this.f_109299_, player, this.f_109306_, partialTick, pitch, hand, arm, swingProcess, stack, equipProcess, matrixStack, buffers, light);
                 } else {
                     if (!IClientItemExtensions.of(stack).applyForgeHandTransform(matrixStack, f_109299_.player, arm, stack, partialTick, equipProcess, swingProcess))
                         if (player.isUsingItem() && player.getUseItemRemainingTicks() > 0 && player.getUsedItemHand() == hand) {

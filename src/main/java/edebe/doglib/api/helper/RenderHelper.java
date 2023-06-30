@@ -86,10 +86,10 @@ public class RenderHelper {
         }
     }
 
-    private static VertexConsumer getFoilBufferDirect(MultiBufferSource buffers, RenderType type, boolean noEntity, ItemStack stack) {
+    private static VertexConsumer getFoilBufferDirect(MultiBufferSource bufferSource, RenderType type, boolean noEntity, ItemStack stack) {
         ItemFoilModifyEvent event = new ItemFoilModifyEvent(stack, stack.getItem() instanceof ICustomItemFoil customFoil ? customFoil.getFoilResourceLocation(stack) : ItemRenderer.ENCHANT_GLINT_LOCATION);
         MinecraftForge.EVENT_BUS.post(event);
-        return stack.hasFoil() ? VertexMultiConsumer.create(buffers.getBuffer(noEntity ? ModRenderType.glintDirect(event.getResourceLocation()) : ModRenderType.entityGlintDirect(event.getResourceLocation())), buffers.getBuffer(type)) : buffers.getBuffer(type);
+        return stack.hasFoil() ? VertexMultiConsumer.create(bufferSource.getBuffer(noEntity ? ModRenderType.glintDirect(event.getResourceLocation()) : ModRenderType.entityGlintDirect(event.getResourceLocation())), bufferSource.getBuffer(type)) : bufferSource.getBuffer(type);
     }
 
     public static void renderModelLists(BakedModel bakedModel, ItemStack itemStack, IItemRenderColor itemColor, int light, int overlay, PoseStack matrixStack, VertexConsumer renderer) {

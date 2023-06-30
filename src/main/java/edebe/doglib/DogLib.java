@@ -1,7 +1,6 @@
 package edebe.doglib;
 
 import edebe.doglib.api.client.renderer.item.ICustomItemFoil;
-import edebe.doglib.api.helper.ResourceLocationHelper;
 import edebe.doglib.api.world.block.ModBlock;
 import edebe.doglib.event.lifecycle.ClientSetup;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -51,6 +50,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import software.bernie.geckolib3.GeckoLib;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -69,6 +69,7 @@ public class DogLib {
         modBus.register(this);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, ()->()->modBus.addListener(ClientSetup::init));
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, DogLibConfig.COMMON_CONFIG);
+        GeckoLib.initialize();
         KillerWhale.register(modBus);
     }
 
@@ -165,7 +166,7 @@ public class DogLib {
 
             @Override
             public ResourceLocation getFoilResourceLocation(ItemStack stack) {
-                return hasSpecificEnchantments(stack) ? ResourceLocationHelper.getResourceLocation(MODID, "textures/misc", "killer_whale_item_glint.png") : ItemRenderer.ENCHANT_GLINT_LOCATION;
+                return hasSpecificEnchantments(stack) ? new ResourceLocation(MODID, "textures/misc/killer_whale_item_glint.png") : ItemRenderer.ENCHANT_GLINT_LOCATION;
             }
 
             private static boolean hasSpecificEnchantments(ItemStack stack) {

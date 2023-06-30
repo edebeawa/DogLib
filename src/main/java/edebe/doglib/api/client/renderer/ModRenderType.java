@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import edebe.doglib.DogLib;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.resources.ResourceLocation;
 
 public class ModRenderType extends RenderType {

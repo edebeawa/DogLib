@@ -20,11 +20,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public interface ItemStackRenderer {
-    interface Item extends ItemStackRenderer {
-        void renderItem(ItemRenderer renderer, BlockEntityWithoutLevelRenderer getter, ItemStack itemStack, ItemTransforms.TransformType transformType, boolean isLeftHand, PoseStack matrixStack, MultiBufferSource bufferSource, ItemColors itemColors, int light, int overlay, TextureManager textureManager, ItemModelShaper modelShaper, BakedModel bakedModel);
-    }
+    void renderItem(ItemRenderer renderer, BlockEntityWithoutLevelRenderer getter, ItemStack itemStack, ItemTransforms.TransformType transformType, boolean isLeftHand, PoseStack matrixStack, MultiBufferSource bufferSource, ItemColors itemColors, int light, int overlay, TextureManager textureManager, ItemModelShaper modelShaper, BakedModel bakedModel);
 
-    interface Hand extends ItemStackRenderer {
-        void renderHand(ItemRenderer renderer, Minecraft minecraft, AbstractClientPlayer player, EntityRenderDispatcher dispatcher, float partialTick, float pitch, InteractionHand hand, HumanoidArm arm, float swingProcess, ItemStack itemStack, float equipProcess, PoseStack matrixStack, MultiBufferSource bufferSource, int light);
-    }
+    void renderHand(ItemRenderer renderer, Minecraft minecraft, AbstractClientPlayer player, EntityRenderDispatcher dispatcher, float partialTick, float pitch, InteractionHand hand, HumanoidArm arm, float swingProcess, ItemStack itemStack, float equipProcess, PoseStack matrixStack, MultiBufferSource bufferSource, int light);
 }

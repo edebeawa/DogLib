@@ -25,14 +25,14 @@ public class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> {
         throw new IllegalStateException("This class must not be instantiated");
     }
 
-    @Shadow @Final private static Component f_97870_;//TOO_EXPENSIVE_TEXT
-    @Shadow @Final private Player f_169611_;//player
+    @Shadow(aliases = "f_97870_") @Final private static Component TOO_EXPENSIVE_TEXT;
+    @Shadow(aliases = "f_169611_") @Final private Player player;
 
     /**
      * @author
      */
-    @Overwrite//renderLabels
-    protected void m_7027_(PoseStack p_97890_, int p_97891_, int p_97892_) {
+    @Overwrite(aliases = "m_7027_")
+    protected void renderLabels(PoseStack p_97890_, int p_97891_, int p_97892_) {
         RenderSystem.disableBlend();
         super.renderLabels(p_97890_, p_97891_, p_97892_);
         int i = this.menu.getCost();
@@ -41,11 +41,11 @@ public class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> {
             int level = DogLibConfig.TOO_EXPENSIVE_LEVEL.get();
             Component component = null;
             if (level != -1 && i >= level && !this.minecraft.player.getAbilities().instabuild) {
-                component = f_97870_;
+                component = TOO_EXPENSIVE_TEXT;
                 j = 16736352;
             } else if (this.menu.getSlot(2).hasItem()) {
                 component = Component.translatable("container.repair.cost", i);
-                if (!this.menu.getSlot(2).mayPickup(this.f_169611_)) {
+                if (!this.menu.getSlot(2).mayPickup(this.player)) {
                     j = 16736352;
                 }
             }
