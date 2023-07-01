@@ -25,21 +25,22 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(ModelBlockRenderer.class)
 public abstract class ModelBlockRendererMixin {
-    @Shadow @Final private BlockColors f_110995_;
+    @Shadow @Final private BlockColors blockColors;
 
-    @Invoker("tesselateWithAO")
+    @Invoker(value = "tesselateWithAO", remap = false)
     abstract void tesselateWithAO(BlockAndTintGetter p_111079_, BakedModel p_111080_, BlockState p_111081_, BlockPos p_111082_, PoseStack p_111083_, VertexConsumer p_111084_, boolean p_111085_, RandomSource p_111086_, long p_111087_, int p_111088_, ModelData modelData, RenderType renderType);
 
-    @Invoker("tesselateWithoutAO")
+    @Invoker(value = "tesselateWithoutAO", remap = false)
     abstract void tesselateWithoutAO(BlockAndTintGetter p_111091_, BakedModel p_111092_, BlockState p_111093_, BlockPos p_111094_, PoseStack p_111095_, VertexConsumer p_111096_, boolean p_111097_, RandomSource p_111098_, long p_111099_, int p_111100_, ModelData modelData, RenderType renderType);
 
     /**
-     * @author
+     * @author edebe
+     * @reason
      */
-    @Overwrite
+    @Overwrite(remap = false)
     public void tesselateBlock(BlockAndTintGetter getter, BakedModel bakedModel, BlockState state, BlockPos pos, PoseStack matrixStack, VertexConsumer vertex, boolean checkSides, RandomSource randomSource, long seed, int overlay, ModelData modelData, RenderType renderType) {
         if (state.getBlock() instanceof ICustomBlockRender render && render.renderBlock(getter, state, pos)) {
-            render.getBlockRenderer().render((ModelBlockRenderer) (Object) this, getter, state, pos, matrixStack, vertex, checkSides, randomSource, seed, this.f_110995_, state.getLightEmission(getter, pos), overlay, modelData, renderType, bakedModel);
+            render.getBlockRenderer().render((ModelBlockRenderer) (Object) this, getter, state, pos, matrixStack, vertex, checkSides, randomSource, seed, this.blockColors, state.getLightEmission(getter, pos), overlay, modelData, renderType, bakedModel);
         } else {
             boolean flag = Minecraft.useAmbientOcclusion() && state.getLightEmission(getter, pos) == 0 && bakedModel.useAmbientOcclusion(state, renderType);
             Vec3 vec3 = state.getOffset(getter, pos);

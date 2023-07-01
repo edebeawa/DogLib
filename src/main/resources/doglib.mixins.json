@@ -2,7 +2,7 @@
   "required": true,
   "package": "edebe.doglib.mixin",
   "compatibilityLevel": "JAVA_17",
-  "refmap": "${mod_id}.refmap.json",
+  "refmap": "doglib.refmap.json",
   "mixins": [
     "AnvilMenuModify",
     "EnchantmentMixin",

@@ -10,6 +10,7 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraftforge.common.MinecraftForge;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.gen.Invoker;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -17,20 +18,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Enchantment.class)
 public abstract class EnchantmentMixin {
-    @Invoker("m_6586_")
-    abstract int getMaxLevel();
+    @Shadow
+    public abstract int getMaxLevel();
 
-    @Invoker("m_44704_")
-    abstract String getDescriptionId();
+    @Shadow
+    public abstract String getDescriptionId();
 
-    @Invoker("m_6589_")
-    abstract boolean isCurse();
+    @Shadow
+    public abstract boolean isCurse();
 
     /**
-     * @author
+     * @author edebe
+     * @reason
      */
-    @Overwrite//getFullname
-    public Component m_44700_(int level) {
+    @Overwrite
+    public Component getFullname(int level) {
         MutableComponent component = TranslationHelper.getTranslationProcessed(this.getDescriptionId());
         component.withStyle(this.isCurse() ? ChatFormatting.RED : ChatFormatting.GRAY);
         if (level != 1 || this.getMaxLevel() != 1)

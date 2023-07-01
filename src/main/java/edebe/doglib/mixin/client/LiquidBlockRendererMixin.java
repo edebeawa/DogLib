@@ -26,38 +26,45 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(LiquidBlockRenderer.class)
 public abstract class LiquidBlockRendererMixin {
-    @Shadow private TextureAtlasSprite f_110942_;
+    @Shadow private TextureAtlasSprite waterOverlay;
 
-    @Invoker("m_203185_")
-    abstract boolean isNeighborSameFluid(FluidState p_203186_, FluidState p_203187_);
+    @Shadow
+    private static boolean isNeighborSameFluid(FluidState p_203186_, FluidState p_203187_) {
+        return false;
+    }
 
-    @Invoker("m_203166_")
-    abstract boolean shouldRenderFace(BlockAndTintGetter p_203167_, BlockPos p_203168_, FluidState p_203169_, BlockState p_203170_, Direction p_203171_, FluidState p_203172_);
+    @Shadow
+    public static boolean shouldRenderFace(BlockAndTintGetter p_203167_, BlockPos p_203168_, FluidState p_203169_, BlockState p_203170_, Direction p_203171_, FluidState p_203172_) {
+        return false;
+    }
 
-    @Invoker("m_203179_")
-    abstract boolean isFaceOccludedByNeighbor(BlockGetter p_203180_, BlockPos p_203181_, Direction p_203182_, float p_203183_, BlockState p_203184_);
+    @Shadow
+    private static boolean isFaceOccludedByNeighbor(BlockGetter p_203180_, BlockPos p_203181_, Direction p_203182_, float p_203183_, BlockState p_203184_) {
+        return false;
+    }
 
-    @Invoker("m_203160_")
-    abstract float getHeight(BlockAndTintGetter p_203161_, Fluid p_203162_, BlockPos p_203163_, BlockState p_203164_, FluidState p_203165_);
+    @Shadow
+    protected abstract float getHeight(BlockAndTintGetter p_203161_, Fluid p_203162_, BlockPos p_203163_, BlockState p_203164_, FluidState p_203165_);
 
-    @Invoker("m_203149_")
-    abstract float calculateAverageHeight(BlockAndTintGetter p_203150_, Fluid p_203151_, float p_203152_, float p_203153_, float p_203154_, BlockPos p_203155_);
+    @Shadow
+    protected abstract float calculateAverageHeight(BlockAndTintGetter p_203150_, Fluid p_203151_, float p_203152_, float p_203153_, float p_203154_, BlockPos p_203155_);
 
-    @Invoker("m_110945_")
-    abstract int getLightColor(BlockAndTintGetter p_110946_, BlockPos p_110947_);
+    @Shadow
+    protected abstract int getLightColor(BlockAndTintGetter p_110946_, BlockPos p_110947_);
 
-    @Invoker("vertex")
-    abstract void vertex(VertexConsumer p_110985_, double p_110986_, double p_110987_, double p_110988_, float p_110989_, float p_110990_, float p_110991_, float alpha, float p_110992_, float p_110993_, int p_110994_);
+    @Shadow(remap = false)
+    protected abstract void vertex(VertexConsumer p_110985_, double p_110986_, double p_110987_, double p_110988_, float p_110989_, float p_110990_, float p_110991_, float alpha, float p_110992_, float p_110993_, int p_110994_);
 
     /**
-     * @author
+     * @author edebe
+     * @reason
      */
-    @Overwrite//tesselate
-    public void m_234369_(BlockAndTintGetter getter, BlockPos pos, VertexConsumer renderer, BlockState blockState, FluidState fluidState) {
+    @Overwrite
+    public void tesselate(BlockAndTintGetter getter, BlockPos pos, VertexConsumer renderer, BlockState blockState, FluidState fluidState) {
         boolean flag = fluidState.is(FluidTags.LAVA);
         TextureAtlasSprite[] textureAtlasSprites = ForgeHooksClient.getFluidSprites(getter, pos, fluidState);
         int color = IClientFluidTypeExtensions.of(fluidState).getTintColor(fluidState, getter, pos);
-        if (!MinecraftForge.EVENT_BUS.post(new FluidRenderEvent(getter, pos, renderer, blockState, fluidState, ColorHelper.parseToColor(color), this.getLightColor(getter, pos), this.f_110942_, textureAtlasSprites))) {
+        if (!MinecraftForge.EVENT_BUS.post(new FluidRenderEvent(getter, pos, renderer, blockState, fluidState, ColorHelper.parseToColor(color), this.getLightColor(getter, pos), this.waterOverlay, textureAtlasSprites))) {
             if (fluidState.getType() instanceof ICustomFluidRender render && render.render(fluidState)) {
                 render.getRenderer().render(getter, pos, renderer, blockState, fluidState, ColorHelper.parseToColor(color), this.getLightColor(getter, pos), textureAtlasSprites);
             } else {
@@ -272,7 +279,7 @@ public abstract class LiquidBlockRendererMixin {
                             this.vertex(renderer, d5, d2 + (double) f45, d6, f37, f38, f39, alpha, f55, f34, k);
                             this.vertex(renderer, d5, d2 + (double) f17, d6, f37, f38, f39, alpha, f55, f35, k);
                             this.vertex(renderer, d3, d2 + (double) f17, d4, f37, f38, f39, alpha, f54, f35, k);
-                            if (textureatlassprite2 != this.f_110942_) {
+                            if (textureatlassprite2 != this.waterOverlay) {
                                 this.vertex(renderer, d3, d2 + (double) f17, d4, f37, f38, f39, alpha, f54, f35, k);
                                 this.vertex(renderer, d5, d2 + (double) f17, d6, f37, f38, f39, alpha, f55, f35, k);
                                 this.vertex(renderer, d5, d2 + (double) f45, d6, f37, f38, f39, alpha, f55, f34, k);

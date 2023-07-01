@@ -26,44 +26,42 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.gen.Invoker;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemInHandRenderer.class)
 public abstract class ItemInHandRendererMixin {
-    @Shadow @Final private Minecraft f_109299_;//minecraft
-    @Shadow private ItemStack f_109301_;//offHandItem
-    @Shadow @Final private EntityRenderDispatcher f_109306_;//entityRenderDispatcher
-    @Shadow @Final private ItemRenderer f_109307_;//itemRenderer
+    @Shadow @Final private Minecraft minecraft;
+    @Shadow private ItemStack offHandItem;
+    @Shadow @Final private EntityRenderDispatcher entityRenderDispatcher;
+    @Shadow @Final private ItemRenderer itemRenderer;
 
-    @Invoker("m_109346_")
-    abstract void renderPlayerArm(PoseStack p_109347_, MultiBufferSource p_109348_, int p_109349_, float p_109350_, float p_109351_, HumanoidArm p_109352_);
+    @Shadow
+    protected abstract void renderPlayerArm(PoseStack p_109347_, MultiBufferSource p_109348_, int p_109349_, float p_109350_, float p_109351_, HumanoidArm p_109352_);
 
-    @Invoker("m_109353_")
-    abstract void renderOneHandedMap(PoseStack p_109354_, MultiBufferSource p_109355_, int p_109356_, float p_109357_, HumanoidArm p_109358_, float p_109359_, ItemStack p_109360_);
+    @Shadow
+    protected abstract void renderOneHandedMap(PoseStack p_109354_, MultiBufferSource p_109355_, int p_109356_, float p_109357_, HumanoidArm p_109358_, float p_109359_, ItemStack p_109360_);
 
-    @Invoker("m_109339_")
-    abstract void renderTwoHandedMap(PoseStack p_109340_, MultiBufferSource p_109341_, int p_109342_, float p_109343_, float p_109344_, float p_109345_);
+    @Shadow
+    protected abstract void renderTwoHandedMap(PoseStack p_109340_, MultiBufferSource p_109341_, int p_109342_, float p_109343_, float p_109344_, float p_109345_);
 
-    @Invoker("m_109382_")
-    abstract void applyItemArmTransform(PoseStack p_109383_, HumanoidArm p_109384_, float p_109385_);
+    @Shadow
+    protected abstract void applyItemArmTransform(PoseStack p_109383_, HumanoidArm p_109384_, float p_109385_);
 
-    @Invoker("m_109335_")
-    abstract void applyItemArmAttackTransform(PoseStack p_109336_, HumanoidArm p_109337_, float p_109338_);
+    @Shadow
+    protected abstract void applyItemArmAttackTransform(PoseStack p_109336_, HumanoidArm p_109337_, float p_109338_);
 
-    @Invoker("m_109330_")
-    abstract void applyEatTransform(PoseStack p_109331_, float p_109332_, HumanoidArm p_109333_, ItemStack p_109334_);
+    @Shadow
+    protected abstract void applyEatTransform(PoseStack p_109331_, float p_109332_, HumanoidArm p_109333_, ItemStack p_109334_);
 
-    @Invoker("m_109322_")
-    abstract void renderItem(LivingEntity p_109323_, ItemStack p_109324_, ItemTransforms.TransformType p_109325_, boolean p_109326_, PoseStack p_109327_, MultiBufferSource p_109328_, int p_109329_);
+    @Shadow
+    public abstract void renderItem(LivingEntity p_109323_, ItemStack p_109324_, ItemTransforms.TransformType p_109325_, boolean p_109326_, PoseStack p_109327_, MultiBufferSource p_109328_, int p_109329_);
 
     /**
-     * @author
+     * @author edebe
+     * @reason
      */
-    @Overwrite//renderArmWithItem
-    private void m_109371_(AbstractClientPlayer player, float partialTick, float pitch, InteractionHand hand, float swingProcess, ItemStack stack, float equipProcess, PoseStack matrixStack, MultiBufferSource buffers, int light) {
-        if (!player.isScoping()) if (!MinecraftForge.EVENT_BUS.post(new ItemInHandRenderEvent(this.f_109307_, this.f_109299_, player, this.f_109306_, partialTick, pitch, hand, hand == InteractionHand.MAIN_HAND ? player.getMainArm() : player.getMainArm().getOpposite(), swingProcess, stack, equipProcess, matrixStack, buffers, light))) {
+    @Overwrite
+    private void renderArmWithItem(AbstractClientPlayer player, float partialTick, float pitch, InteractionHand hand, float swingProcess, ItemStack stack, float equipProcess, PoseStack matrixStack, MultiBufferSource buffers, int light) {
+        if (!player.isScoping()) if (!MinecraftForge.EVENT_BUS.post(new ItemInHandRenderEvent(this.itemRenderer, this.minecraft, player, this.entityRenderDispatcher, partialTick, pitch, hand, hand == InteractionHand.MAIN_HAND ? player.getMainArm() : player.getMainArm().getOpposite(), swingProcess, stack, equipProcess, matrixStack, buffers, light))) {
             boolean flag = hand == InteractionHand.MAIN_HAND;
             HumanoidArm arm = flag ? player.getMainArm() : player.getMainArm().getOpposite();
             matrixStack.pushPose();
@@ -71,7 +69,7 @@ public abstract class ItemInHandRendererMixin {
                 if (flag && !player.isInvisible())
                     this.renderPlayerArm(matrixStack, buffers, light, equipProcess, swingProcess, arm);
             } else if (stack.is(Items.FILLED_MAP)) {
-                if (flag && this.f_109301_.isEmpty())
+                if (flag && this.offHandItem.isEmpty())
                     this.renderTwoHandedMap(matrixStack, buffers, light, pitch, equipProcess, swingProcess);
                 else
                     this.renderOneHandedMap(matrixStack, buffers, light, equipProcess, arm, swingProcess, stack);
@@ -84,7 +82,7 @@ public abstract class ItemInHandRendererMixin {
                         matrixStack.mulPose(Vector3f.XP.rotationDegrees(-11.935F));
                         matrixStack.mulPose(Vector3f.YP.rotationDegrees((float) i * 65.3F));
                         matrixStack.mulPose(Vector3f.ZP.rotationDegrees((float) i * -9.785F));
-                        float f9 = (float) stack.getUseDuration() - ((float) this.f_109299_.player.getUseItemRemainingTicks() - partialTick + 1.0F);
+                        float f9 = (float) stack.getUseDuration() - ((float) this.minecraft.player.getUseItemRemainingTicks() - partialTick + 1.0F);
                         float f13 = f9 / (float) CrossbowItem.getChargeDuration(stack);
                         if (f13 > 1.0F) f13 = 1.0F;
                         if (f13 > 0.1F) {
@@ -112,9 +110,9 @@ public abstract class ItemInHandRendererMixin {
 
                     this.renderItem(player, stack, isRightArm(arm) ? ItemTransforms.TransformType.FIRST_PERSON_RIGHT_HAND : ItemTransforms.TransformType.FIRST_PERSON_LEFT_HAND, !isRightArm(arm), matrixStack, buffers, light);
                 } else if (stack.getItem() instanceof ICustomItemRender render && ReflectionHelper.hasMethod(render.getItemStackRenderer().getClass(), "renderHand", ItemRenderer.class, Minecraft.class, AbstractClientPlayer.class, EntityRenderDispatcher.class, float.class, float.class, InteractionHand.class, HumanoidArm.class, float.class, ItemStack.class, float.class, PoseStack.class, MultiBufferSource.class, int.class)) {
-                    render.getItemStackRenderer().renderHand(this.f_109307_, this.f_109299_, player, this.f_109306_, partialTick, pitch, hand, arm, swingProcess, stack, equipProcess, matrixStack, buffers, light);
+                    render.getItemStackRenderer().renderHand(this.itemRenderer, this.minecraft, player, this.entityRenderDispatcher, partialTick, pitch, hand, arm, swingProcess, stack, equipProcess, matrixStack, buffers, light);
                 } else {
-                    if (!IClientItemExtensions.of(stack).applyForgeHandTransform(matrixStack, f_109299_.player, arm, stack, partialTick, equipProcess, swingProcess))
+                    if (!IClientItemExtensions.of(stack).applyForgeHandTransform(matrixStack, minecraft.player, arm, stack, partialTick, equipProcess, swingProcess))
                         if (player.isUsingItem() && player.getUseItemRemainingTicks() > 0 && player.getUsedItemHand() == hand) {
                             int k = isRightArm(arm) ? 1 : -1;
                             switch (stack.getUseAnimation()) {
@@ -129,7 +127,7 @@ public abstract class ItemInHandRendererMixin {
                                     matrixStack.mulPose(Vector3f.XP.rotationDegrees(-13.935F));
                                     matrixStack.mulPose(Vector3f.YP.rotationDegrees((float) k * 35.3F));
                                     matrixStack.mulPose(Vector3f.ZP.rotationDegrees((float) k * -9.785F));
-                                    float f8 = (float) stack.getUseDuration() - ((float) this.f_109299_.player.getUseItemRemainingTicks() - partialTick + 1.0F);
+                                    float f8 = (float) stack.getUseDuration() - ((float) this.minecraft.player.getUseItemRemainingTicks() - partialTick + 1.0F);
                                     float f12 = f8 / 20.0F;
                                     f12 = (f12 * f12 + f12 * 2.0F) / 3.0F;
                                     if (f12 > 1.0F) {
@@ -151,7 +149,7 @@ public abstract class ItemInHandRendererMixin {
                                     matrixStack.mulPose(Vector3f.XP.rotationDegrees(-55.0F));
                                     matrixStack.mulPose(Vector3f.YP.rotationDegrees((float) k * 35.3F));
                                     matrixStack.mulPose(Vector3f.ZP.rotationDegrees((float) k * -9.785F));
-                                    float f7 = (float) stack.getUseDuration() - ((float) this.f_109299_.player.getUseItemRemainingTicks() - partialTick + 1.0F);
+                                    float f7 = (float) stack.getUseDuration() - ((float) this.minecraft.player.getUseItemRemainingTicks() - partialTick + 1.0F);
                                     float f11 = f7 / 10.0F;
                                     if (f11 > 1.0F) {
                                         f11 = 1.0F;

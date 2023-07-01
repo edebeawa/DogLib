@@ -37,38 +37,36 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.gen.Invoker;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemRenderer.class)
 public abstract class ItemRendererMixin {
-    @Shadow @Final private ItemModelShaper f_115095_;//itemModelShaper
-    @Shadow @Final private TextureManager f_115096_;//textureManager
-    @Shadow @Final private ItemColors f_115097_;//itemColors
-    @Shadow @Final private BlockEntityWithoutLevelRenderer f_174223_;//blockEntityRenderer
+    @Shadow @Final private ItemModelShaper itemModelShaper;
+    @Shadow @Final private TextureManager textureManager;
+    @Shadow @Final private ItemColors itemColors;
+    @Shadow @Final private BlockEntityWithoutLevelRenderer blockEntityRenderer;
 
-    @Invoker("m_115189_")
-    abstract void renderModelLists(BakedModel p_115190_, ItemStack p_115191_, int p_115192_, int p_115193_, PoseStack p_115194_, VertexConsumer p_115195_);
+    @Shadow
+    public abstract void renderModelLists(BakedModel p_115190_, ItemStack p_115191_, int p_115192_, int p_115193_, PoseStack p_115194_, VertexConsumer p_115195_);
 
     /**
-     * @author
+     * @author edebe
+     * @reason
      */
-    @Overwrite//render
-    public void m_115143_(ItemStack stack, ItemTransforms.TransformType transformType, boolean isLeftHand, PoseStack matrixStack, MultiBufferSource bufferSource, int light, int overlay, BakedModel bakedModel) {
-        if (!stack.isEmpty()) if (!MinecraftForge.EVENT_BUS.post(new ItemRenderEvent((ItemRenderer) (Object)this, this.f_174223_, stack, transformType, isLeftHand, matrixStack, bufferSource, this.f_115097_, light, overlay, f_115096_, this.f_115095_, bakedModel))) {
+    @Overwrite
+    public void render(ItemStack stack, ItemTransforms.TransformType transformType, boolean isLeftHand, PoseStack matrixStack, MultiBufferSource bufferSource, int light, int overlay, BakedModel bakedModel) {
+        if (!stack.isEmpty()) if (!MinecraftForge.EVENT_BUS.post(new ItemRenderEvent((ItemRenderer) (Object)this, this.blockEntityRenderer, stack, transformType, isLeftHand, matrixStack, bufferSource, this.itemColors, light, overlay, textureManager, this.itemModelShaper, bakedModel))) {
             matrixStack.pushPose();
             boolean flag = transformType == ItemTransforms.TransformType.GUI || transformType == ItemTransforms.TransformType.GROUND || transformType == ItemTransforms.TransformType.FIXED;
             if (flag)
                 if (stack.is(Items.TRIDENT))
-                    bakedModel = this.f_115095_.getModelManager().getModel(new ModelResourceLocation("minecraft:trident#inventory"));
+                    bakedModel = this.itemModelShaper.getModelManager().getModel(new ModelResourceLocation("minecraft:trident#inventory"));
                 else if (stack.is(Items.SPYGLASS))
-                    bakedModel = this.f_115095_.getModelManager().getModel(new ModelResourceLocation("minecraft:spyglass#inventory"));
+                    bakedModel = this.itemModelShaper.getModelManager().getModel(new ModelResourceLocation("minecraft:spyglass#inventory"));
 
             bakedModel = ForgeHooksClient.handleCameraTransforms(matrixStack, bakedModel, transformType, isLeftHand);
             matrixStack.translate(-0.5D, -0.5D, -0.5D);
             if (stack.getItem() instanceof ICustomItemRender render && ReflectionHelper.hasMethod(render.getItemStackRenderer().getClass(), "renderItem", ItemRenderer.class, BlockEntityWithoutLevelRenderer.class, ItemStack.class, ItemTransforms.TransformType.class, boolean.class, PoseStack.class, MultiBufferSource.class, ItemColors.class, int.class, int.class, TextureManager.class, ItemModelShaper.class, BakedModel.class)) {
-                render.getItemStackRenderer().renderItem((ItemRenderer) (Object)this, this.f_174223_, stack, transformType, isLeftHand, matrixStack, bufferSource, this.f_115097_, light, overlay, f_115096_, this.f_115095_, bakedModel);
+                render.getItemStackRenderer().renderItem((ItemRenderer) (Object)this, this.blockEntityRenderer, stack, transformType, isLeftHand, matrixStack, bufferSource, this.itemColors, light, overlay, textureManager, this.itemModelShaper, bakedModel);
             } else if (!bakedModel.isCustomRenderer() && (!stack.is(Items.TRIDENT) || flag)) {
                 boolean flag1;
                 if (transformType != ItemTransforms.TransformType.GUI && !transformType.firstPerson() && stack.getItem() instanceof BlockItem) {
@@ -108,19 +106,23 @@ public abstract class ItemRendererMixin {
     }
 
     private static VertexConsumer getCompassFoilBuffer(MultiBufferSource bufferSource, RenderType type, PoseStack.Pose matrix, ItemStack stack) {
-        return VertexMultiConsumer.create(new SheetedDecalTextureGenerator(bufferSource.getBuffer(ModRenderType.glint(getFoilResourceLocation(stack))), matrix.pose(), matrix.normal()), bufferSource.getBuffer(type));
+        //return VertexMultiConsumer.create(new SheetedDecalTextureGenerator(bufferSource.getBuffer(ModRenderType.glint(getFoilResourceLocation(stack))), matrix.pose(), matrix.normal()), bufferSource.getBuffer(type));
+        return ItemRenderer.getCompassFoilBuffer(bufferSource, type, matrix);
     }
 
     private static VertexConsumer getCompassFoilBufferDirect(MultiBufferSource bufferSource, RenderType type, PoseStack.Pose matrix, ItemStack stack) {
-        return VertexMultiConsumer.create(new SheetedDecalTextureGenerator(bufferSource.getBuffer(ModRenderType.glintDirect(getFoilResourceLocation(stack))), matrix.pose(), matrix.normal()), bufferSource.getBuffer(type));
+        //return VertexMultiConsumer.create(new SheetedDecalTextureGenerator(bufferSource.getBuffer(ModRenderType.glintDirect(getFoilResourceLocation(stack))), matrix.pose(), matrix.normal()), bufferSource.getBuffer(type));
+        return ItemRenderer.getCompassFoilBuffer(bufferSource, type, matrix);
     }
 
     private static VertexConsumer getFoilBuffer(MultiBufferSource bufferSource, RenderType type, boolean noEntity, ItemStack stack) {
-        return stack.hasFoil() ? (Minecraft.useShaderTransparency() && type == Sheets.translucentItemSheet() ? VertexMultiConsumer.create(bufferSource.getBuffer(ModRenderType.glintTranslucent(getFoilResourceLocation(stack))), bufferSource.getBuffer(type)) : VertexMultiConsumer.create(bufferSource.getBuffer(noEntity ? ModRenderType.glint(getFoilResourceLocation(stack)) : ModRenderType.entityGlint(getFoilResourceLocation(stack))), bufferSource.getBuffer(type))) : bufferSource.getBuffer(type);
+        //return stack.hasFoil() ? (Minecraft.useShaderTransparency() && type == Sheets.translucentItemSheet() ? VertexMultiConsumer.create(bufferSource.getBuffer(ModRenderType.glintTranslucent(getFoilResourceLocation(stack))), bufferSource.getBuffer(type)) : VertexMultiConsumer.create(bufferSource.getBuffer(noEntity ? ModRenderType.glint(getFoilResourceLocation(stack)) : ModRenderType.entityGlint(getFoilResourceLocation(stack))), bufferSource.getBuffer(type))) : bufferSource.getBuffer(type);
+        return ItemRenderer.getFoilBuffer(bufferSource, type, noEntity, stack.hasFoil());
     }
 
     private static VertexConsumer getFoilBufferDirect(MultiBufferSource bufferSource, RenderType type, boolean noEntity, ItemStack stack) {
-        return stack.hasFoil() ? VertexMultiConsumer.create(bufferSource.getBuffer(noEntity ? ModRenderType.glintDirect(getFoilResourceLocation(stack)) : ModRenderType.entityGlintDirect(getFoilResourceLocation(stack))), bufferSource.getBuffer(type)) : bufferSource.getBuffer(type);
+        //return stack.hasFoil() ? VertexMultiConsumer.create(bufferSource.getBuffer(noEntity ? ModRenderType.glintDirect(getFoilResourceLocation(stack)) : ModRenderType.entityGlintDirect(getFoilResourceLocation(stack))), bufferSource.getBuffer(type)) : bufferSource.getBuffer(type);
+        return ItemRenderer.getFoilBufferDirect(bufferSource, type, noEntity, stack.hasFoil());
     }
 
     private static ResourceLocation getFoilResourceLocation(ItemStack stack) {

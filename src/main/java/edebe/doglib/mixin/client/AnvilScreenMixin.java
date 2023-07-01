@@ -25,13 +25,14 @@ public class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> {
         throw new IllegalStateException("This class must not be instantiated");
     }
 
-    @Shadow(aliases = "f_97870_") @Final private static Component TOO_EXPENSIVE_TEXT;
-    @Shadow(aliases = "f_169611_") @Final private Player player;
+    @Shadow @Final private static Component TOO_EXPENSIVE_TEXT;
+    @Shadow @Final private final Player player;
 
     /**
-     * @author
+     * @author edebe
+     * @reason
      */
-    @Overwrite(aliases = "m_7027_")
+    @Overwrite
     protected void renderLabels(PoseStack p_97890_, int p_97891_, int p_97892_) {
         RenderSystem.disableBlend();
         super.renderLabels(p_97890_, p_97891_, p_97892_);

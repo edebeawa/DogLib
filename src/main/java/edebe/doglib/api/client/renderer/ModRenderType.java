@@ -14,14 +14,16 @@ public class ModRenderType extends RenderType {
         throw new IllegalStateException("This class must not be instantiated");
     }
 
-    private static final RenderType FILL_COLOR = RenderType.create(getModRenderTypeName("fill_color"), DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS, 256, false, true, RenderType.CompositeState.builder()
-            .setShaderState(POSITION_COLOR_SHADER)
-            .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-            .createCompositeState(true)
-    );
+    private static String getModRenderTypeName(String name) {
+        return DogLib.MODID + ":" + name;
+    }
 
     public static RenderType fillColor() {
-        return FILL_COLOR;
+        return RenderType.create(getModRenderTypeName("fill_color"), DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS, 256, false, true, RenderType.CompositeState.builder()
+                .setShaderState(POSITION_COLOR_SHADER)
+                .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                .createCompositeState(true)
+        );
     }
 
     public static RenderType glintTranslucent(ResourceLocation resourceLocation) {
@@ -34,7 +36,8 @@ public class ModRenderType extends RenderType {
                 .setTransparencyState(GLINT_TRANSPARENCY)
                 .setTexturingState(GLINT_TEXTURING)
                 .setOutputState(ITEM_ENTITY_TARGET)
-                .createCompositeState(false));
+                .createCompositeState(false)
+        );
     }
 
     public static RenderType glint(ResourceLocation resourceLocation) {
@@ -88,9 +91,5 @@ public class ModRenderType extends RenderType {
                 .setTexturingState(ENTITY_GLINT_TEXTURING)
                 .createCompositeState(false)
         );
-    }
-
-    private static String getModRenderTypeName(String name) {
-        return DogLib.MODID + ":" + name;
     }
 }

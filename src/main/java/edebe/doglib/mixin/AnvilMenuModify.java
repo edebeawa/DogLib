@@ -15,9 +15,6 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Map;
 
@@ -28,39 +25,40 @@ public abstract class AnvilMenuModify extends ItemCombinerMenu {
         throw new IllegalStateException("This class must not be instantiated");
     }
 
-    @Shadow @Final private DataSlot f_39002_;//cost
-    @Shadow public int f_39000_;//repairItemCountCost
-    @Shadow private String f_39001_;//itemName
+    @Shadow @Final private DataSlot cost;
+    @Shadow public int repairItemCountCost;
+    @Shadow private String itemName;
 
     /**
-     * @author
+     * @author edebe
+     * @reason
      */
-    @Overwrite//createResult
-    public void m_6640_() {
+    @Overwrite
+    public void createResult() {
         ItemStack itemstack = this.inputSlots.getItem(0);
-        this.f_39002_.set(1);
+        this.cost.set(1);
         int i = 0;
         int j = 0;
         int k = 0;
         if (itemstack.isEmpty()) {
             this.resultSlots.setItem(0, ItemStack.EMPTY);
-            this.f_39002_.set(0);
+            this.cost.set(0);
         } else {
             ItemStack itemstack1 = itemstack.copy();
             ItemStack itemstack2 = this.inputSlots.getItem(1);
             Map<Enchantment, Integer> map = EnchantmentHelper.getEnchantments(itemstack1);
             j += itemstack.getBaseRepairCost() + (itemstack2.isEmpty() ? 0 : itemstack2.getBaseRepairCost());
-            this.f_39000_ = 0;
+            this.repairItemCountCost = 0;
             boolean flag = false;
 
-            if (!net.minecraftforge.common.ForgeHooks.onAnvilChange((AnvilMenu) (ItemCombinerMenu)this, itemstack, itemstack2, resultSlots, f_39001_, j, this.player)) return;
+            if (!net.minecraftforge.common.ForgeHooks.onAnvilChange((AnvilMenu) (ItemCombinerMenu)this, itemstack, itemstack2, resultSlots, itemName, j, this.player)) return;
             if (!itemstack2.isEmpty()) {
                 flag = itemstack2.getItem() == Items.ENCHANTED_BOOK && !EnchantedBookItem.getEnchantments(itemstack2).isEmpty();
                 if (itemstack1.isDamageableItem() && itemstack1.getItem().isValidRepairItem(itemstack, itemstack2)) {
                     int l2 = Math.min(itemstack1.getDamageValue(), itemstack1.getMaxDamage() / 4);
                     if (l2 <= 0) {
                         this.resultSlots.setItem(0, ItemStack.EMPTY);
-                        this.f_39002_.set(0);
+                        this.cost.set(0);
                         return;
                     }
 
@@ -72,11 +70,11 @@ public abstract class AnvilMenuModify extends ItemCombinerMenu {
                         l2 = Math.min(itemstack1.getDamageValue(), itemstack1.getMaxDamage() / 4);
                     }
 
-                    this.f_39000_ = i3;
+                    this.repairItemCountCost = i3;
                 } else {
                     if (!flag && (!itemstack1.is(itemstack2.getItem()) || !itemstack1.isDamageableItem())) {
                         this.resultSlots.setItem(0, ItemStack.EMPTY);
-                        this.f_39002_.set(0);
+                        this.cost.set(0);
                         return;
                     }
 
@@ -155,35 +153,35 @@ public abstract class AnvilMenuModify extends ItemCombinerMenu {
 
                     if (flag3 && !flag2) {
                         this.resultSlots.setItem(0, ItemStack.EMPTY);
-                        this.f_39002_.set(0);
+                        this.cost.set(0);
                         return;
                     }
                 }
             }
 
-            if (StringUtils.isBlank(this.f_39001_)) {
+            if (StringUtils.isBlank(this.itemName)) {
                 if (itemstack.hasCustomHoverName()) {
                     k = 1;
                     i += k;
                     itemstack1.resetHoverName();
                 }
-            } else if (!this.f_39001_.equals(itemstack.getHoverName().getString())) {
+            } else if (!this.itemName.equals(itemstack.getHoverName().getString())) {
                 k = 1;
                 i += k;
-                itemstack1.setHoverName(Component.literal(this.f_39001_));
+                itemstack1.setHoverName(Component.literal(this.itemName));
             }
             if (flag && !itemstack1.isBookEnchantable(itemstack2)) itemstack1 = ItemStack.EMPTY;
 
-            this.f_39002_.set(j + i);
+            this.cost.set(j + i);
             if (i <= 0) {
                 itemstack1 = ItemStack.EMPTY;
             }
 
             int level = DogLibConfig.TOO_EXPENSIVE_LEVEL.get();
-            boolean isTooExpensive = level == -1 ? false : this.f_39002_.get() >= level;
+            boolean isTooExpensive = level == -1 ? false : this.cost.get() >= level;
 
             if (k == i && k > 0 && isTooExpensive) {
-                this.f_39002_.set(level - 1);
+                this.cost.set(level - 1);
             }
 
             if (isTooExpensive && !this.player.getAbilities().instabuild) {
