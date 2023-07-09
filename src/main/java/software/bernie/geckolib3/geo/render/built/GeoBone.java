@@ -4,7 +4,7 @@ import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3d;
 import com.mojang.math.Vector4f;
-import edebe.doglib.mixin.client.Matrix4fAccessor;
+import edebe.doglib.mixin.geckolib.Matrix4fAccessor;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.ApiStatus.AvailableSince;
 import software.bernie.geckolib3.core.processor.IBone;

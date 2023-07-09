@@ -177,7 +177,6 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.jetbrains:annotations:20.1.0'
     // compileOnly 'org.projectlombok:lombok:1.18.4'
     // annotationProcessor 'org.projectlombok:lombok:1.18.4'
     // testCompileOnly 'org.projectlombok:lombok:1.18.4'
@@ -188,9 +187,13 @@ dependencies {
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft 'net.minecraftforge:forge:1.19.2-43.1.1'
 
+    implementation 'org.jetbrains:annotations:20.1.0'
+
+    library 'com.eliotlash.mclib:mclib:20'
     library group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.0'
     library group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.9.0'
 
+    shade 'com.eliotlash.mclib:mclib:20'
     shade group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.0'
     shade group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.9.0'
 
@@ -204,8 +207,6 @@ dependencies {
     }
     compileOnly fg.deobf("vazkii.patchouli:Patchouli:1.19.2-76:api")
     compileOnly fg.deobf("vazkii.patchouli:Patchouli:1.19.2-76")
-
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }

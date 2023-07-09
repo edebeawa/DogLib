@@ -1,11 +1,7 @@
 package edebe.doglib.mixin.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.SheetedDecalTextureGenerator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexMultiConsumer;
-import edebe.doglib.DogLib;
-import edebe.doglib.api.client.renderer.ModRenderType;
 import edebe.doglib.api.client.renderer.item.ICustomItemFoil;
 import edebe.doglib.api.client.renderer.item.ICustomItemRender;
 import edebe.doglib.api.client.renderer.item.IItemRenderColor;
@@ -13,7 +9,6 @@ import edebe.doglib.api.event.client.ItemFoilModifyEvent;
 import edebe.doglib.api.event.client.ItemRenderEvent;
 import edebe.doglib.api.helper.ReflectionHelper;
 import edebe.doglib.api.helper.RenderHelper;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemColors;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
@@ -36,7 +31,6 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(ItemRenderer.class)
 public abstract class ItemRendererMixin {
@@ -84,16 +78,12 @@ public abstract class ItemRendererMixin {
                             else if (transformType.firstPerson())
                                 matrix.pose().multiply(0.75F);
 
-                            if (flag1)
-                                vertexConsumer = getCompassFoilBufferDirect(bufferSource, rendertype, matrix, stack);
-                            else
-                                vertexConsumer = getCompassFoilBuffer(bufferSource, rendertype, matrix, stack);
+                            if (flag1) vertexConsumer = getCompassFoilBufferDirect(bufferSource, rendertype, matrix, stack);
+                            else vertexConsumer = getCompassFoilBuffer(bufferSource, rendertype, matrix, stack);
 
                             matrixStack.popPose();
-                        } else if (flag1)
-                            vertexConsumer = getFoilBufferDirect(bufferSource, rendertype, true, stack);
-                        else
-                            vertexConsumer = getFoilBuffer(bufferSource, rendertype, true, stack);
+                        } else if (flag1) vertexConsumer = getFoilBufferDirect(bufferSource, rendertype, true, stack);
+                        else vertexConsumer = getFoilBuffer(bufferSource, rendertype, true, stack);
 
                         if (stack.getItem() instanceof IItemRenderColor itemRenderColor)
                             RenderHelper.renderModelLists(model, stack, itemRenderColor, light, overlay, matrixStack, vertexConsumer);
@@ -106,29 +96,28 @@ public abstract class ItemRendererMixin {
     }
 
     private static VertexConsumer getCompassFoilBuffer(MultiBufferSource bufferSource, RenderType type, PoseStack.Pose matrix, ItemStack stack) {
-        //return VertexMultiConsumer.create(new SheetedDecalTextureGenerator(bufferSource.getBuffer(ModRenderType.glint(getFoilResourceLocation(stack))), matrix.pose(), matrix.normal()), bufferSource.getBuffer(type));
+        //return VertexMultiConsumer.create(new SheetedDecalTextureGenerator(bufferSource.getBuffer(DogLibRenderType.glint(getFoilResourceLocation(stack))), matrix.pose(), matrix.normal()), bufferSource.getBuffer(type));
         return ItemRenderer.getCompassFoilBuffer(bufferSource, type, matrix);
     }
 
     private static VertexConsumer getCompassFoilBufferDirect(MultiBufferSource bufferSource, RenderType type, PoseStack.Pose matrix, ItemStack stack) {
-        //return VertexMultiConsumer.create(new SheetedDecalTextureGenerator(bufferSource.getBuffer(ModRenderType.glintDirect(getFoilResourceLocation(stack))), matrix.pose(), matrix.normal()), bufferSource.getBuffer(type));
-        return ItemRenderer.getCompassFoilBuffer(bufferSource, type, matrix);
+        //return VertexMultiConsumer.create(new SheetedDecalTextureGenerator(bufferSource.getBuffer(DogLibRenderType.glintDirect(getFoilResourceLocation(stack))), matrix.pose(), matrix.normal()), bufferSource.getBuffer(type));
+        return ItemRenderer.getCompassFoilBufferDirect(bufferSource, type, matrix);
     }
 
     private static VertexConsumer getFoilBuffer(MultiBufferSource bufferSource, RenderType type, boolean noEntity, ItemStack stack) {
-        //return stack.hasFoil() ? (Minecraft.useShaderTransparency() && type == Sheets.translucentItemSheet() ? VertexMultiConsumer.create(bufferSource.getBuffer(ModRenderType.glintTranslucent(getFoilResourceLocation(stack))), bufferSource.getBuffer(type)) : VertexMultiConsumer.create(bufferSource.getBuffer(noEntity ? ModRenderType.glint(getFoilResourceLocation(stack)) : ModRenderType.entityGlint(getFoilResourceLocation(stack))), bufferSource.getBuffer(type))) : bufferSource.getBuffer(type);
+        //return stack.hasFoil() ? (Minecraft.useShaderTransparency() && type == Sheets.translucentItemSheet() ? VertexMultiConsumer.create(bufferSource.getBuffer(DogLibRenderType.glintTranslucent(getFoilResourceLocation(stack))), bufferSource.getBuffer(type)) : VertexMultiConsumer.create(bufferSource.getBuffer(noEntity ? DogLibRenderType.glint(getFoilResourceLocation(stack)) : DogLibRenderType.entityGlint(getFoilResourceLocation(stack))), bufferSource.getBuffer(type))) : bufferSource.getBuffer(type);
         return ItemRenderer.getFoilBuffer(bufferSource, type, noEntity, stack.hasFoil());
     }
 
     private static VertexConsumer getFoilBufferDirect(MultiBufferSource bufferSource, RenderType type, boolean noEntity, ItemStack stack) {
-        //return stack.hasFoil() ? VertexMultiConsumer.create(bufferSource.getBuffer(noEntity ? ModRenderType.glintDirect(getFoilResourceLocation(stack)) : ModRenderType.entityGlintDirect(getFoilResourceLocation(stack))), bufferSource.getBuffer(type)) : bufferSource.getBuffer(type);
+        //return stack.hasFoil() ? VertexMultiConsumer.create(bufferSource.getBuffer(noEntity ? DogLibRenderType.glintDirect(getFoilResourceLocation(stack)) : DogLibRenderType.entityGlintDirect(getFoilResourceLocation(stack))), bufferSource.getBuffer(type)) : bufferSource.getBuffer(type);
         return ItemRenderer.getFoilBufferDirect(bufferSource, type, noEntity, stack.hasFoil());
     }
 
     private static ResourceLocation getFoilResourceLocation(ItemStack stack) {
         ItemFoilModifyEvent event = new ItemFoilModifyEvent(stack, stack.getItem() instanceof ICustomItemFoil customFoil ? customFoil.getFoilResourceLocation(stack) : ItemRenderer.ENCHANT_GLINT_LOCATION);
         MinecraftForge.EVENT_BUS.post(event);
-        DogLib.LOGGER.error(event.getResourceLocation());
         return event.getResourceLocation();
     }
 }

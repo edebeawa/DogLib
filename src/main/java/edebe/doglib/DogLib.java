@@ -63,10 +63,7 @@ public class DogLib {
     public static final SimpleChannel PACKET_HANDLER = NetworkRegistry.newSimpleChannel(new ResourceLocation(MODID, MODID), () -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
 
     public DogLib() {
-        MinecraftForge.EVENT_BUS.register(this);
-
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
-        modBus.register(this);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, ()->()->modBus.addListener(ClientSetup::init));
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, DogLibConfig.COMMON_CONFIG);
         GeckoLib.initialize();

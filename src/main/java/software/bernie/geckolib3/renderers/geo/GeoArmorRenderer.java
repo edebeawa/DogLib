@@ -5,7 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
-import edebe.doglib.mixin.client.AgeableListModelAccessor;
+import edebe.doglib.mixin.geckolib.client.AgeableListModelAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.AgeableListModel;
 import net.minecraft.client.model.HumanoidModel;
@@ -281,7 +281,7 @@ public abstract class GeoArmorRenderer<T extends ArmorItem & IAnimatable> extend
 				if(currentWearerModel instanceof AgeableListModel<?>) {
 					AgeableListModelAccessor ageableModel = (AgeableListModelAccessor) currentWearerModel;
 					babyScale = ageableModel.getBabyBodyScale(); // this is intended. Babyscale is something like 2 or 3, so not actually 0.5 or something
-					if(ageableModel.getScaleHead()) {
+					if(ageableModel.isScaleHead()) {
 						babyHeadScale = 1.5F / ageableModel.getBabyHeadScale();
 					}
 					offsetY = ageableModel.getBabyYHeadOffset() / 16.0D;

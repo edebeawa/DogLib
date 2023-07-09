@@ -7,14 +7,16 @@
     "AnvilMenuModify",
     "EnchantmentMixin",
     "EntityMixin",
-    "client.Matrix4fAccessor"
+    "geckolib.Matrix4fAccessor"
   ],
   "client": [
-    "client.AgeableListModelAccessor",
     "client.AnvilScreenMixin",
     "client.ItemInHandRendererMixin",
     "client.ItemRendererMixin",
-    "client.ModelPartAccessor"
+    "client.ModelLayersMixin",
+    "client.RenderBuffersMixin",
+    "geckolib.client.AgeableListModelAccessor",
+    "geckolib.client.ModelPartAccessor"
   ],
   "server": [],
   "injectors": {
