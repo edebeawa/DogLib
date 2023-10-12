@@ -5,14 +5,19 @@
   "refmap": "doglib.refmap.json",
   "mixins": [
     "AnvilMenuModify",
+    "BiomeSourcesMixin",
     "EnchantmentMixin",
     "EntityMixin",
+    "LevelStemMixin",
+    "WorldPresetsBootstrapMixin",
     "geckolib.Matrix4fAccessor"
   ],
   "client": [
     "client.AnvilScreenMixin",
     "client.ItemInHandRendererMixin",
     "client.ItemRendererMixin",
+    "client.LevelRendererMixin",
+    "client.MinecraftAccessor",
     "client.ModelLayersMixin",
     "client.RenderBuffersMixin",
     "geckolib.client.AgeableListModelAccessor",

@@ -4,6 +4,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.eventbus.api.Event;
 
+@Deprecated(forRemoval = true)
 public class ItemFoilModifyEvent extends Event {
     private final ItemStack stack;
     private ResourceLocation location;

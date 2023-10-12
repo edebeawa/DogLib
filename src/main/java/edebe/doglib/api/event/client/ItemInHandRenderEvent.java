@@ -25,11 +25,11 @@ public class ItemInHandRenderEvent extends Event {
     private final ItemRenderer renderer;
     private final ItemStack itemStack;
     private final float equipProcess;
-    private final PoseStack matrixStack;
+    private final PoseStack poseStack;
     private final MultiBufferSource bufferSource;
     private final int light;
 
-    public ItemInHandRenderEvent(ItemRenderer renderer, Minecraft minecraft, AbstractClientPlayer player, EntityRenderDispatcher dispatcher, float partialTick, float pitch, InteractionHand hand, HumanoidArm arm, float swingProcess, ItemStack itemStack, float equipProcess, PoseStack matrixStack, MultiBufferSource bufferSource, int light) {
+    public ItemInHandRenderEvent(ItemRenderer renderer, Minecraft minecraft, AbstractClientPlayer player, EntityRenderDispatcher dispatcher, float partialTick, float pitch, InteractionHand hand, HumanoidArm arm, float swingProcess, ItemStack itemStack, float equipProcess, PoseStack poseStack, MultiBufferSource bufferSource, int light) {
         this.minecraft = minecraft;
         this.player = player;
         this.dispatcher = dispatcher;
@@ -41,7 +41,7 @@ public class ItemInHandRenderEvent extends Event {
         this.renderer = renderer;
         this.itemStack = itemStack;
         this.equipProcess = equipProcess;
-        this.matrixStack = matrixStack;
+        this.poseStack = poseStack;
         this.bufferSource = bufferSource;
         this.light = light;
     }
@@ -91,7 +91,7 @@ public class ItemInHandRenderEvent extends Event {
     }
 
     public PoseStack getPoseStack() {
-        return matrixStack;
+        return poseStack;
     }
 
     public MultiBufferSource getBufferSource() {

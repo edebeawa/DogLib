@@ -2,9 +2,9 @@ package edebe.doglib.mixin.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
-import edebe.doglib.api.client.renderer.item.ICustomItemRender;
-import edebe.doglib.api.event.client.ItemInHandRenderEvent;
 import edebe.doglib.api.helper.ReflectionHelper;
+import edebe.doglib.api.register.ItemBuilderTransformers;
+import edebe.doglib.hook.DogLibClientHooks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
@@ -20,12 +20,10 @@ import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
-import net.minecraftforge.common.MinecraftForge;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(ItemInHandRenderer.class)
 public abstract class ItemInHandRendererMixin {
@@ -61,7 +59,7 @@ public abstract class ItemInHandRendererMixin {
      */
     @Overwrite
     private void renderArmWithItem(AbstractClientPlayer player, float partialTick, float pitch, InteractionHand hand, float swingProcess, ItemStack stack, float equipProcess, PoseStack matrixStack, MultiBufferSource buffers, int light) {
-        if (!player.isScoping()) if (!MinecraftForge.EVENT_BUS.post(new ItemInHandRenderEvent(this.itemRenderer, this.minecraft, player, this.entityRenderDispatcher, partialTick, pitch, hand, hand == InteractionHand.MAIN_HAND ? player.getMainArm() : player.getMainArm().getOpposite(), swingProcess, stack, equipProcess, matrixStack, buffers, light))) {
+        if (!player.isScoping()) if (!DogLibClientHooks.onItemInHandRender(this.itemRenderer, this.minecraft, player, this.entityRenderDispatcher, partialTick, pitch, hand, hand == InteractionHand.MAIN_HAND ? player.getMainArm() : player.getMainArm().getOpposite(), swingProcess, stack, equipProcess, matrixStack, buffers, light)) {
             boolean flag = hand == InteractionHand.MAIN_HAND;
             HumanoidArm arm = flag ? player.getMainArm() : player.getMainArm().getOpposite();
             matrixStack.pushPose();
@@ -109,8 +107,8 @@ public abstract class ItemInHandRendererMixin {
                     }
 
                     this.renderItem(player, stack, isRightArm(arm) ? ItemTransforms.TransformType.FIRST_PERSON_RIGHT_HAND : ItemTransforms.TransformType.FIRST_PERSON_LEFT_HAND, !isRightArm(arm), matrixStack, buffers, light);
-                } else if (stack.getItem() instanceof ICustomItemRender render && ReflectionHelper.hasMethod(render.getItemStackRenderer().getClass(), "renderHand", ItemRenderer.class, Minecraft.class, AbstractClientPlayer.class, EntityRenderDispatcher.class, float.class, float.class, InteractionHand.class, HumanoidArm.class, float.class, ItemStack.class, float.class, PoseStack.class, MultiBufferSource.class, int.class)) {
-                    render.getItemStackRenderer().renderHand(this.itemRenderer, this.minecraft, player, this.entityRenderDispatcher, partialTick, pitch, hand, arm, swingProcess, stack, equipProcess, matrixStack, buffers, light);
+                } else if (ItemBuilderTransformers.hasItemStackRenderer(stack.getItem()) && ReflectionHelper.hasMethod(ItemBuilderTransformers.getItemStackRenderer(stack.getItem()).getClass(), "renderHand", ItemRenderer.class, Minecraft.class, AbstractClientPlayer.class, EntityRenderDispatcher.class, float.class, float.class, InteractionHand.class, HumanoidArm.class, float.class, ItemStack.class, float.class, PoseStack.class, MultiBufferSource.class, int.class)) {
+                    ItemBuilderTransformers.getItemStackRenderer(stack.getItem()).renderHand(this.itemRenderer, this.minecraft, player, this.entityRenderDispatcher, partialTick, pitch, hand, arm, swingProcess, stack, equipProcess, matrixStack, buffers, light);
                 } else {
                     if (!IClientItemExtensions.of(stack).applyForgeHandTransform(matrixStack, minecraft.player, arm, stack, partialTick, equipProcess, swingProcess))
                         if (player.isUsingItem() && player.getUseItemRemainingTicks() > 0 && player.getUsedItemHand() == hand) {

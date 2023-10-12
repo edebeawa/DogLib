@@ -1,6 +1,6 @@
 package edebe.doglib.api.helper;
 
-public class TextHelper {
+public final class TextHelper {
     private static final String[] thousands = {"", "M", "MM", "MMM"};
     private static final String[] hundreds = {"", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM"};
     private static final String[] tens = {"", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC"};

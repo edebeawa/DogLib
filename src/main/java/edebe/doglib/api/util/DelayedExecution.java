@@ -2,30 +2,41 @@ package edebe.doglib.api.util;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class DelayedExecution {
-    Runnable runnable;
-    int delayTick;
-    IEventBus bus;
+    private final Runnable run;
 
-    public DelayedExecution(IEventBus bus, Runnable runnable, int delayTick) {
-        this.runnable = runnable;
-        this.delayTick = delayTick;
-        this.bus = bus;
-        bus.register(this);
-    }
+    private IEventBus bus;
+    private int delayTick;
 
     public DelayedExecution(Runnable runnable, int delayTick) {
-        this(MinecraftForge.EVENT_BUS, runnable, delayTick);
+        this.run = runnable;
+        this.delayTick = delayTick;
+    }
+
+    public void start() {
+        this.start(MinecraftForge.EVENT_BUS);
+    }
+
+    public void start(IEventBus bus) {
+        this.bus = bus;
+        this.bus.register(this);
+    }
+
+    public void end() {
+        this.run.run();
+        this.canceled();
+    }
+
+    public void canceled() {
+        this.bus.unregister(this);
     }
 
     @SubscribeEvent
-    public void tick(TickEvent event) {
-        if (this.delayTick-- <= 0) {
-            this.runnable.run();
-            this.bus.unregister(this);
-        }
+    public void onTick(TickEvent event) {
+        if (event.phase == Phase.END && this.delayTick-- <= 0) this.end();
     }
 }

@@ -5,7 +5,7 @@ import net.minecraft.network.chat.MutableComponent;
 
 import java.util.*;
 
-public class TranslationHelper {
+public final class TranslationHelper {
     public static MutableComponent translationProcessing(String translation, Map<String, ?> regexMap) {
         Map<String, Object> map = regexMap();
         if (regexMap != null && !map.isEmpty()) map.putAll(regexMap);

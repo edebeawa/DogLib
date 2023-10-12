@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Vector3d;
 import com.mojang.math.Vector3f;
 import edebe.doglib.DogLib;
+import edebe.doglib.api.awt.DogLibColor;
 import edebe.doglib.api.client.renderer.CubeRenderInfo;
 import edebe.doglib.api.client.renderer.IVertexInfo;
 import edebe.doglib.api.client.renderer.ModRenderType;
@@ -40,7 +41,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class RenderHelper {
+public final class RenderHelper {
     public static final ResourceLocation SOLID_COLOR_FILL = new ResourceLocation(DogLib.MODID, "textures/misc/solid_color_fill.png");
     public static final int MAX_LIGHT = 15728880;
 
@@ -84,6 +85,7 @@ public class RenderHelper {
         }
     }
 
+    @SuppressWarnings("removal")
     private static VertexConsumer getFoilBufferDirect(MultiBufferSource bufferSource, RenderType type, boolean noEntity, ItemStack stack) {
         ItemFoilModifyEvent event = new ItemFoilModifyEvent(stack, stack.getItem() instanceof ICustomItemFoil customFoil ? customFoil.getFoilResourceLocation(stack) : ItemRenderer.ENCHANT_GLINT_LOCATION);
         MinecraftForge.EVENT_BUS.post(event);
@@ -108,8 +110,8 @@ public class RenderHelper {
             int color = -1;
             if (!itemStack.isEmpty() && quad.isTinted())
                 color = itemColor.getColor(itemStack, quad.getTintIndex());
-            int[] rgba = MathHelper.parseToColor(color);
-            renderer.putBulkData(matrixStack.last(), quad, rgba[0] / 255f, rgba[1] / 255f, rgba[2] / 255f, rgba[3] / 255f, light, overlay, true);
+            DogLibColor dogLibColor = new DogLibColor(color, true);
+            renderer.putBulkData(matrixStack.last(), quad, dogLibColor.getFloatRed(), dogLibColor.getFloatGreen(), dogLibColor.getFloatBlue(), dogLibColor.getFloatAlpha(), light, overlay, true);
         }
     }
 
@@ -120,7 +122,7 @@ public class RenderHelper {
     public static void renderFluidTankFluid(@Nonnull SimpleFluidTankBlockEntity fluidTank, PoseStack matrixStack, MultiBufferSource bufferIn, IFluidRenderColor fluidColor, int light, CubeRenderInfo... renders) {
         if (fluidTank.isRemoved() || fluidTank.isEmpty()) return;
         FluidStack stack = fluidTank.getFluid();
-        renderFluid(stack, matrixStack, bufferIn, 16, 16, ColorHelper.parseToColor(fluidColor.getColor(fluidTank, matrixStack, stack, bufferIn, renders)), light, renders);
+        renderFluid(stack, matrixStack, bufferIn, 16, 16, new DogLibColor(fluidColor.getColor(fluidTank, matrixStack, stack, bufferIn, renders), true), light, renders);
     }
 
     public static void renderFluid(FluidStack stack, PoseStack matrixStack, MultiBufferSource bufferIn, double width, double height, Color color, int light, CubeRenderInfo... renders) {

@@ -13,7 +13,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.53', changing: false
         classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
         classpath "gradle.plugin.com.github.jengelman.gradle.plugins:shadow:7.0.0"
         classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.4.0'
@@ -59,9 +59,9 @@ minecraft {
     //
     // Use non-default mappings at your own risk. They may not always work.
     // Simply re-run your setup task after changing the mappings to update your workspace.
-    mappings channel: 'official', version: '1.19.2'
+    mappings channel: 'parchment', version: '2022.11.06-1.19.2'
 
-    // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
     // Default run configurations.
     // These can be tweaked, removed, or duplicated as needed.
@@ -166,13 +166,34 @@ jar {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
-    maven { url "https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/" }
-    maven { url "https://maven.enginehub.org/repo/" }
-    maven { url "https://maven.blamejared.com" }
-    maven { url "https://minecraft.curseforge.com/api/maven/" }
-    maven { url "https://maven.cloudsmith.io/geckolib3/geckolib/" }
-    maven { url "https://cursemaven.com" }
-    maven { url "https://plugins.gradle.org/m2/" }
+    maven {
+        url "https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/"
+    }
+    maven {
+        url "https://maven.enginehub.org/repo/"
+    }
+    maven {
+        url "https://maven.blamejared.com"
+    }
+    maven {
+        url "https://minecraft.curseforge.com/api/maven/"
+    }
+    maven {
+        url "https://maven.cloudsmith.io/geckolib3/geckolib/"
+    }
+    maven {
+        url "https://cursemaven.com"
+    }
+    maven {
+        url "https://plugins.gradle.org/m2/"
+    }
+    maven {
+        url 'https://maven.tterrag.com'
+    }
+    maven {
+        name "curios"
+        url "https://maven.theillusivec4.top/"
+    }
     mavenCentral()
 }
 
@@ -185,9 +206,17 @@ dependencies {
     // Specify the version of Minecraft to use. If this is any group other than 'net.minecraft' it is assumed
     // that the dep is a ForgeGradle 'patcher' dependency, and its patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
-    minecraft 'net.minecraftforge:forge:1.19.2-43.1.1'
+    minecraft 'net.minecraftforge:forge:1.19.2-43.2.4'
+
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
     implementation 'org.jetbrains:annotations:20.1.0'
+
+    jarJar("com.tterrag.registrate:Registrate:MC1.19-1.1.5") {
+        jarJar.ranged(it, '[MC1.19-1.1.5,)')
+    }
+
+    implementation 'com.tterrag.registrate:Registrate:MC1.19-1.1.5'
 
     library 'com.eliotlash.mclib:mclib:20'
     library group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.0'
@@ -196,7 +225,6 @@ dependencies {
     shade 'com.eliotlash.mclib:mclib:20'
     shade group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.0'
     shade group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.9.0'
-
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.6.2'
@@ -208,7 +236,8 @@ dependencies {
     compileOnly fg.deobf("vazkii.patchouli:Patchouli:1.19.2-76:api")
     compileOnly fg.deobf("vazkii.patchouli:Patchouli:1.19.2-76")
 
-    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:1.19.2-5.1.1.0:api")
+    runtimeOnly fg.deobf("top.theillusivec4.curios:curios-forge:1.19.2-5.1.1.0")
 }
 
 jar.finalizedBy('reobfJar')

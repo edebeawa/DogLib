@@ -1,9 +1,9 @@
 package edebe.doglib.mixin.client;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import edebe.doglib.api.awt.DogLibColor;
 import edebe.doglib.api.client.renderer.fluid.ICustomFluidRender;
-import edebe.doglib.api.event.client.FluidRenderEvent;
-import edebe.doglib.api.helper.ColorHelper;
+import edebe.doglib.hook.DogLibClientHooks;
 import net.minecraft.client.renderer.block.LiquidBlockRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
@@ -18,30 +18,13 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.minecraftforge.common.MinecraftForge;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(LiquidBlockRenderer.class)
 public abstract class LiquidBlockRendererMixin {
     @Shadow private TextureAtlasSprite waterOverlay;
-
-    @Shadow
-    private static boolean isNeighborSameFluid(FluidState p_203186_, FluidState p_203187_) {
-        return false;
-    }
-
-    @Shadow
-    public static boolean shouldRenderFace(BlockAndTintGetter p_203167_, BlockPos p_203168_, FluidState p_203169_, BlockState p_203170_, Direction p_203171_, FluidState p_203172_) {
-        return false;
-    }
-
-    @Shadow
-    private static boolean isFaceOccludedByNeighbor(BlockGetter p_203180_, BlockPos p_203181_, Direction p_203182_, float p_203183_, BlockState p_203184_) {
-        return false;
-    }
 
     @Shadow
     protected abstract float getHeight(BlockAndTintGetter p_203161_, Fluid p_203162_, BlockPos p_203163_, BlockState p_203164_, FluidState p_203165_);
@@ -55,6 +38,21 @@ public abstract class LiquidBlockRendererMixin {
     @Shadow(remap = false)
     protected abstract void vertex(VertexConsumer p_110985_, double p_110986_, double p_110987_, double p_110988_, float p_110989_, float p_110990_, float p_110991_, float alpha, float p_110992_, float p_110993_, int p_110994_);
 
+    @Shadow
+    private static boolean isNeighborSameFluid(FluidState p_203186_, FluidState p_203187_) {
+        throw new IllegalStateException();
+    }
+
+    @Shadow
+    public static boolean shouldRenderFace(BlockAndTintGetter p_203167_, BlockPos p_203168_, FluidState p_203169_, BlockState p_203170_, Direction p_203171_, FluidState p_203172_) {
+        throw new IllegalStateException();
+    }
+
+    @Shadow
+    private static boolean isFaceOccludedByNeighbor(BlockGetter p_203180_, BlockPos p_203181_, Direction p_203182_, float p_203183_, BlockState p_203184_) {
+        throw new IllegalStateException();
+    }
+
     /**
      * @author edebe
      * @reason
@@ -64,9 +62,9 @@ public abstract class LiquidBlockRendererMixin {
         boolean flag = fluidState.is(FluidTags.LAVA);
         TextureAtlasSprite[] textureAtlasSprites = ForgeHooksClient.getFluidSprites(getter, pos, fluidState);
         int color = IClientFluidTypeExtensions.of(fluidState).getTintColor(fluidState, getter, pos);
-        if (!MinecraftForge.EVENT_BUS.post(new FluidRenderEvent(getter, pos, renderer, blockState, fluidState, ColorHelper.parseToColor(color), this.getLightColor(getter, pos), this.waterOverlay, textureAtlasSprites))) {
+        if (!DogLibClientHooks.onFluidRender(getter, pos, renderer, blockState, fluidState, new DogLibColor(color, true), this.getLightColor(getter, pos), this.waterOverlay, textureAtlasSprites)) {
             if (fluidState.getType() instanceof ICustomFluidRender render && render.render(fluidState)) {
-                render.getRenderer().render(getter, pos, renderer, blockState, fluidState, ColorHelper.parseToColor(color), this.getLightColor(getter, pos), textureAtlasSprites);
+                render.getRenderer().render(getter, pos, renderer, blockState, fluidState, new DogLibColor(color, true), this.getLightColor(getter, pos), textureAtlasSprites);
             } else {
                 float alpha = (float) (color >> 24 & 255) / 255.0F;
                 float f = (float) (color >> 16 & 255) / 255.0F;

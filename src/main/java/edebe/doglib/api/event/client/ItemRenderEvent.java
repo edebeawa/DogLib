@@ -20,7 +20,7 @@ public class ItemRenderEvent extends Event {
     private final ItemStack itemStack;
     private final ItemTransforms.TransformType transformType;
     private final boolean isLeftHand;
-    private final PoseStack matrixStack;
+    private final PoseStack poseStack;
     private final MultiBufferSource bufferSource;
     private final ItemColors itemColors;
     private final int light;
@@ -29,13 +29,13 @@ public class ItemRenderEvent extends Event {
     private final ItemModelShaper modelShaper;
     private final BakedModel bakedModel;
 
-    public ItemRenderEvent(ItemRenderer renderer, BlockEntityWithoutLevelRenderer getter, ItemStack itemStack, ItemTransforms.TransformType transformType, boolean isLeftHand, PoseStack matrixStack, MultiBufferSource bufferSource, ItemColors itemColors, int light, int overlay, TextureManager textureManager, ItemModelShaper modelShaper, BakedModel bakedModel) {
+    public ItemRenderEvent(ItemRenderer renderer, BlockEntityWithoutLevelRenderer getter, ItemStack itemStack, ItemTransforms.TransformType transformType, boolean isLeftHand, PoseStack poseStack, MultiBufferSource bufferSource, ItemColors itemColors, int light, int overlay, TextureManager textureManager, ItemModelShaper modelShaper, BakedModel bakedModel) {
         this.renderer = renderer;
         this.getter = getter;
         this.itemStack = itemStack;
         this.transformType = transformType;
         this.isLeftHand = isLeftHand;
-        this.matrixStack = matrixStack;
+        this.poseStack = poseStack;
         this.bufferSource = bufferSource;
         this.itemColors = itemColors;
         this.light = light;
@@ -66,7 +66,7 @@ public class ItemRenderEvent extends Event {
     }
 
     public PoseStack getPoseStack() {
-        return matrixStack;
+        return poseStack;
     }
 
     public MultiBufferSource getBufferSource() {

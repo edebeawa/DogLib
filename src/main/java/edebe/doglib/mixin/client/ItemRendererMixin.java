@@ -3,14 +3,17 @@ package edebe.doglib.mixin.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import edebe.doglib.api.client.renderer.item.ICustomItemFoil;
-import edebe.doglib.api.client.renderer.item.ICustomItemRender;
 import edebe.doglib.api.client.renderer.item.IItemRenderColor;
 import edebe.doglib.api.event.client.ItemFoilModifyEvent;
-import edebe.doglib.api.event.client.ItemRenderEvent;
 import edebe.doglib.api.helper.ReflectionHelper;
 import edebe.doglib.api.helper.RenderHelper;
+import edebe.doglib.api.register.ItemBuilderTransformers;
+import edebe.doglib.hook.DogLibClientHooks;
 import net.minecraft.client.color.item.ItemColors;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.client.renderer.ItemModelShaper;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
@@ -48,7 +51,7 @@ public abstract class ItemRendererMixin {
      */
     @Overwrite
     public void render(ItemStack stack, ItemTransforms.TransformType transformType, boolean isLeftHand, PoseStack matrixStack, MultiBufferSource bufferSource, int light, int overlay, BakedModel bakedModel) {
-        if (!stack.isEmpty()) if (!MinecraftForge.EVENT_BUS.post(new ItemRenderEvent((ItemRenderer) (Object)this, this.blockEntityRenderer, stack, transformType, isLeftHand, matrixStack, bufferSource, this.itemColors, light, overlay, textureManager, this.itemModelShaper, bakedModel))) {
+        if (!stack.isEmpty()) if (!DogLibClientHooks.onItemRender((ItemRenderer) (Object)this, this.blockEntityRenderer, stack, transformType, isLeftHand, matrixStack, bufferSource, this.itemColors, light, overlay, textureManager, this.itemModelShaper, bakedModel)) {
             matrixStack.pushPose();
             boolean flag = transformType == ItemTransforms.TransformType.GUI || transformType == ItemTransforms.TransformType.GROUND || transformType == ItemTransforms.TransformType.FIXED;
             if (flag)
@@ -59,8 +62,8 @@ public abstract class ItemRendererMixin {
 
             bakedModel = ForgeHooksClient.handleCameraTransforms(matrixStack, bakedModel, transformType, isLeftHand);
             matrixStack.translate(-0.5D, -0.5D, -0.5D);
-            if (stack.getItem() instanceof ICustomItemRender render && ReflectionHelper.hasMethod(render.getItemStackRenderer().getClass(), "renderItem", ItemRenderer.class, BlockEntityWithoutLevelRenderer.class, ItemStack.class, ItemTransforms.TransformType.class, boolean.class, PoseStack.class, MultiBufferSource.class, ItemColors.class, int.class, int.class, TextureManager.class, ItemModelShaper.class, BakedModel.class)) {
-                render.getItemStackRenderer().renderItem((ItemRenderer) (Object)this, this.blockEntityRenderer, stack, transformType, isLeftHand, matrixStack, bufferSource, this.itemColors, light, overlay, textureManager, this.itemModelShaper, bakedModel);
+            if (ItemBuilderTransformers.hasItemStackRenderer(stack.getItem()) && ReflectionHelper.hasMethod(ItemBuilderTransformers.getItemStackRenderer(stack.getItem()).getClass(), "renderItem", ItemRenderer.class, BlockEntityWithoutLevelRenderer.class, ItemStack.class, ItemTransforms.TransformType.class, boolean.class, PoseStack.class, MultiBufferSource.class, ItemColors.class, int.class, int.class, TextureManager.class, ItemModelShaper.class, BakedModel.class)) {
+                ItemBuilderTransformers.getItemStackRenderer(stack.getItem()).renderItem((ItemRenderer) (Object)this, this.blockEntityRenderer, stack, transformType, isLeftHand, matrixStack, bufferSource, this.itemColors, light, overlay, textureManager, this.itemModelShaper, bakedModel);
             } else if (!bakedModel.isCustomRenderer() && (!stack.is(Items.TRIDENT) || flag)) {
                 boolean flag1;
                 if (transformType != ItemTransforms.TransformType.GUI && !transformType.firstPerson() && stack.getItem() instanceof BlockItem) {
@@ -115,6 +118,7 @@ public abstract class ItemRendererMixin {
         return ItemRenderer.getFoilBufferDirect(bufferSource, type, noEntity, stack.hasFoil());
     }
 
+    @SuppressWarnings("removal")
     private static ResourceLocation getFoilResourceLocation(ItemStack stack) {
         ItemFoilModifyEvent event = new ItemFoilModifyEvent(stack, stack.getItem() instanceof ICustomItemFoil customFoil ? customFoil.getFoilResourceLocation(stack) : ItemRenderer.ENCHANT_GLINT_LOCATION);
         MinecraftForge.EVENT_BUS.post(event);

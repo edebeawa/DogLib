@@ -2,32 +2,37 @@ package edebe.doglib.api.event;
 
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerEntity;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fluids.FluidType;
+import net.minecraftforge.fml.LogicalSide;
 
-@Cancelable
-public class EntityTickEvent extends Event {
+public class EntityTickEvent extends TickEvent {
     private final Entity entity;
-    private Level level;
-    private BlockState feetBlockState;
+    private final Level level;
+    private final BlockState feetBlockState;
+    private final float walkDistO;
+    private final float walkDist;
+    private final BlockPos blockPosition;
+    private final float xRotO;
+    private final float yRotO;
+    private final boolean wasInPowderSnow;
+    private final boolean isInPowderSnow;
+    private final boolean firstTick;
+
     private int boardingCooldown;
-    private float walkDistO;
-    private float walkDist;
-    private BlockPos blockPosition;
-    private float xRotO;
-    private float yRotO;
-    private boolean wasInPowderSnow;
-    private boolean isInPowderSnow;
     private int remainingFireTicks;
     private float fallDistance;
-    private boolean firstTick;
     private Object2DoubleMap<FluidType> forgeFluidTypeHeight;
 
-    public EntityTickEvent(Entity entity, Level level, BlockState feetBlockState, int boardingCooldown, float walkDistO, float walkDist, BlockPos blockPosition, float xRotO, float yRotO, boolean wasInPowderSnow, boolean isInPowderSnow, int remainingFireTicks, float fallDistance, boolean firstTick, Object2DoubleMap<FluidType> forgeFluidTypeHeight) {
+    public EntityTickEvent(Phase phase, Entity entity, Level level, BlockState feetBlockState, int boardingCooldown, float walkDistO, float walkDist, BlockPos blockPosition, float xRotO, float yRotO, boolean wasInPowderSnow, boolean isInPowderSnow, int remainingFireTicks, float fallDistance, boolean firstTick, Object2DoubleMap<FluidType> forgeFluidTypeHeight) {
+        super(Type.PLAYER, level.isClientSide ? LogicalSide.CLIENT : LogicalSide.SERVER, phase);
         this.entity = entity;
         this.level = level;
         this.feetBlockState = feetBlockState;
@@ -45,44 +50,8 @@ public class EntityTickEvent extends Event {
         this.forgeFluidTypeHeight = forgeFluidTypeHeight;
     }
 
-    public void setLevel(Level level) {
-        this.level = level;
-    }
-
-    public void setFeetBlockState(BlockState feetBlockState) {
-        this.feetBlockState = feetBlockState;
-    }
-
     public void setBoardingCooldown(int boardingCooldown) {
         this.boardingCooldown = boardingCooldown;
-    }
-
-    public void setWalkDistOld(float walkDistOld) {
-        this.walkDistO = walkDistOld;
-    }
-
-    public void setWalkDist(float walkDist) {
-        this.walkDist = walkDist;
-    }
-
-    public void setBlockPos(BlockPos pos) {
-        this.blockPosition = pos;
-    }
-
-    public void setXRotOld(float xRotOld) {
-        this.xRotO = xRotOld;
-    }
-
-    public void setYRotOld(float yRotOld) {
-        this.yRotO = yRotOld;
-    }
-
-    public void setWasInPowderSnow(boolean wasInPowderSnow) {
-        this.wasInPowderSnow = wasInPowderSnow;
-    }
-
-    public void setInPowderSnow(boolean inPowderSnow) {
-        isInPowderSnow = inPowderSnow;
     }
 
     public void setRemainingFireTicks(int remainingFireTicks) {
@@ -91,10 +60,6 @@ public class EntityTickEvent extends Event {
 
     public void setFallDistance(float fallDistance) {
         this.fallDistance = fallDistance;
-    }
-
-    public void setFirstTick(boolean firstTick) {
-        this.firstTick = firstTick;
     }
 
     public void setForgeFluidTypeHeight(Object2DoubleMap<FluidType> forgeFluidTypeHeight) {

@@ -12,12 +12,13 @@ import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
 
+@Deprecated
 @Cancelable
 public class SingleBlockRenderEvent extends Event {
     private final ModelBlockRenderer renderer;
     private final RenderShape renderShape;
     private final BlockState blockState;
-    private final PoseStack matrixStack;
+    private final PoseStack poseStack;
     private final MultiBufferSource bufferSource;
     private final BlockColors blockColors;
     private final int light;
@@ -25,6 +26,20 @@ public class SingleBlockRenderEvent extends Event {
     private final ModelData modelData;
     private final RenderType renderType;
     private final BakedModel bakedModel;
+
+    public SingleBlockRenderEvent(ModelBlockRenderer renderer, RenderShape renderShape, BlockState blockState, PoseStack poseStack, MultiBufferSource bufferSource, BlockColors blockColors, int light, int overlay, ModelData modelData, RenderType renderType, BakedModel bakedModel) {
+        this.renderer = renderer;
+        this.renderShape = renderShape;
+        this.blockState = blockState;
+        this.poseStack = poseStack;
+        this.bufferSource = bufferSource;
+        this.blockColors = blockColors;
+        this.light = light;
+        this.overlay = overlay;
+        this.modelData = modelData;
+        this.renderType = renderType;
+        this.bakedModel = bakedModel;
+    }
 
     public ModelBlockRenderer getRenderer() {
         return renderer;
@@ -38,8 +53,8 @@ public class SingleBlockRenderEvent extends Event {
         return blockState;
     }
 
-    public PoseStack getMatrixStack() {
-        return matrixStack;
+    public PoseStack getPoseStack() {
+        return poseStack;
     }
 
     public MultiBufferSource getBufferSource() {
@@ -68,19 +83,5 @@ public class SingleBlockRenderEvent extends Event {
 
     public BakedModel getBakedModel() {
         return bakedModel;
-    }
-
-    public SingleBlockRenderEvent(ModelBlockRenderer renderer, RenderShape renderShape, BlockState blockState, PoseStack matrixStack, MultiBufferSource bufferSource, BlockColors blockColors, int light, int overlay, ModelData modelData, RenderType renderType, BakedModel bakedModel) {
-        this.renderer = renderer;
-        this.renderShape = renderShape;
-        this.blockState = blockState;
-        this.matrixStack = matrixStack;
-        this.bufferSource = bufferSource;
-        this.blockColors = blockColors;
-        this.light = light;
-        this.overlay = overlay;
-        this.modelData = modelData;
-        this.renderType = renderType;
-        this.bakedModel = bakedModel;
     }
 }
